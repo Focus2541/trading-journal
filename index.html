@@ -89,16 +89,35 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 .bk span:first-child{color:var(--muted)} .bk span:last-child{font-family:var(--mono)}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;z-index:30;max-width:90vw}
 .loading{padding:40px;text-align:center;color:var(--muted)}
+.table .tr .name{white-space:normal;line-height:1.3;overflow-wrap:anywhere}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:10px}
+.cal .h{font-size:11px;color:var(--muted);text-align:center;padding:2px 0}
+.cal .c{min-height:48px;border-radius:8px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid transparent;font-size:11px;cursor:default}
+.cal button.c{cursor:pointer;color:var(--text)}
+.cal .c .dn{color:var(--muted);font-size:11px}
+.cal .c .dv{font:600 10px var(--mono)}
+.cal .c.p{background:rgba(79,192,141,.16);border-color:rgba(79,192,141,.35)}
+.cal .c.n{background:rgba(240,122,106,.16);border-color:rgba(240,122,106,.35)}
+.cal .c.today{outline:1px solid var(--muted)}
+.calnav{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 0}
+.calnav button{width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.beh{border-bottom:1px solid var(--line2)}
+.beh:last-child{border-bottom:0}
+.beh > button{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:58px;background:transparent;border:0;text-align:left;cursor:pointer}
+.beh .det{padding:0 14px 14px;font-size:12px;line-height:1.65;color:#B8C3CD}
+.link{background:transparent;border:0;color:var(--sys);font-size:13px;padding:8px 0;cursor:pointer;min-height:40px}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar > i{display:block;height:8px;border-radius:4px}
+.form label{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line2)}
+.form label:last-child{border-bottom:0}
+.form input{width:96px;min-height:40px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:500 15px var(--mono);text-align:right}
+.good{color:#8FE0B7} .warn{color:var(--warntext)}
 </style>
 </head>
 <body>
 
-<!-- ================== ตั้งค่า: ใส่ publishable key ของคุณตรงนี้ ================== -->
-<script>
-  const SUPABASE_URL = 'https://qngfrplrdnehxpovbupl.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_7o__nAwpAq0BQ1q5YFHc0w_10guP4Kt'; // sb_publishable_...  (ห้ามใส่ sb_secret_)
-</script>
-<!-- ============================================================================ -->
+<!-- ค่าเชื่อมต่ออยู่ในไฟล์ config.js (อัปเดต index.html ได้โดยไม่ต้องใส่ key ใหม่) -->
+<script src="config.js"></script>
 
 <div id="login" class="login hidden">
   <div>
@@ -135,6 +154,8 @@ nav.bottom button.on{color:var(--text);font-weight:600}
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>ภาพรวม</button>
     <button data-tab="tag" type="button">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span id="tagLabel">รอแท็ก</span></button>
+    <button data-tab="behavior" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>พฤติกรรม</button>
     <button data-tab="trades" type="button">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>ไม้ทั้งหมด</button>
     <button data-tab="more" type="button">
@@ -151,9 +172,11 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 
   // ---------- เตรียม ----------
   const $ = (id) => document.getElementById(id);
+  const SUPABASE_URL = window.TJ_SUPABASE_URL || 'https://qngfrplrdnehxpovbupl.supabase.co';
+  const SUPABASE_KEY = window.TJ_SUPABASE_KEY || '';
   if (!SUPABASE_KEY || SUPABASE_KEY.startsWith('PASTE_')) {
     document.body.innerHTML = '<div class="login"><div style="font-size:20px;font-weight:700">ยังไม่ได้ใส่ Publishable key</div>' +
-      '<div class="sub" style="line-height:1.7">เปิดไฟล์ index.html แล้วแก้บรรทัด <span class="mono">SUPABASE_KEY</span> เป็นค่าที่ขึ้นต้น <span class="mono">sb_publishable_</span></div></div>';
+      '<div class="sub" style="line-height:1.7">สร้าง/แก้ไฟล์ <span class="mono">config.js</span> ใน repo เดียวกับ index.html แล้วใส่ค่าที่ขึ้นต้น <span class="mono">sb_publishable_</span></div></div>';
     return;
   }
   if (SUPABASE_KEY.startsWith('sb_secret_')) {
@@ -165,6 +188,7 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 
   const state = {
     tab: 'overview', unit: load('unit', 'usc'), trades: [], strategies: [], accounts: [],
+    expectations: [], settings: null, symbols: [], userId: null, calMonth: null, openBeh: null,
     filter: 'ทั้งหมด', skipped: new Set(), loading: false
   };
 
@@ -234,17 +258,29 @@ nav.bottom button.on{color:var(--text);font-weight:600}
   // ---------- โหลดข้อมูล ----------
   async function loadData() {
     state.loading = true;
-    const [tr, st, ac] = await Promise.all([
+    const [tr, st, ac, ex, se, sy, us] = await Promise.all([
       sb.from('v_trades').select('*').order('open_time', { ascending: false }).limit(5000),
-      sb.from('strategies').select('id,code,name,is_system,sort_order').order('sort_order'),
-      sb.from('accounts').select('id,login,currency,divisor,last_sync_at')
+      sb.from('strategies').select('id,code,name,is_system,sort_order,max_lot,risk_pct').order('sort_order'),
+      sb.from('accounts').select('id,login,currency,divisor,last_sync_at'),
+      sb.from('strategy_expectations').select('*'),
+      sb.from('settings').select('*').limit(1),
+      sb.from('symbols').select('*').order('symbol'),
+      sb.auth.getUser()
     ]);
     state.loading = false;
-    const err = tr.error || st.error || ac.error;
-    if (err) { $('view').innerHTML = '<div class="empty">โหลดข้อมูลไม่สำเร็จ<br><span class="mono" style="font-size:12px">' + esc(err.message) + '</span></div>'; return false; }
+    const err = tr.error || st.error || ac.error || ex.error || se.error || sy.error;
+    if (err) { $('view').innerHTML = '<div class="empty">โหลดข้อมูลไม่สำเร็จ<br><span class="mono" style="font-size:12px">' + esc(err.message) + '</span><br><span style="font-size:12px">ถ้าเพิ่งอัปเดตเว็บ ตรวจว่ารัน 04_behavior.sql แล้ว</span></div>'; return false; }
     state.trades = tr.data || [];
     state.strategies = st.data || [];
     state.accounts = ac.data || [];
+    state.expectations = ex.data || [];
+    state.settings = (se.data || [])[0] || null;
+    state.symbols = sy.data || [];
+    state.userId = us && us.data && us.data.user ? us.data.user.id : null;
+    if (!state.calMonth) {
+      const last = state.trades.find((t) => t.close_time);
+      state.calMonth = (last ? fDay(last.close_time) : fDay(new Date().toISOString())).slice(0, 7);
+    }
     const a = state.accounts[0];
     $('acctLine').textContent = a ? ('Exness ' + a.login + (a.last_sync_at ? ' · ซิงก์ ' + fDate(a.last_sync_at) : '')) : '';
     return true;
@@ -286,16 +322,201 @@ nav.bottom button.on{color:var(--text);font-weight:600}
           const s = stats(rows); const sysG = rows[0] && rows[0].is_system;
           const dot = b === 'ยังไม่แท็ก' ? 'none' : (sysG ? 'sys' : 'man');
           return `<button class="tr" data-filter="${esc(b)}" type="button" style="background:transparent;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;cursor:pointer">
-            <div class="row" style="min-width:0;gap:8px"><span class="dot ${dot}"></span><span class="ellipsis">${esc(b)}</span></div>
+            <div class="row" style="min-width:0;gap:8px"><span class="dot ${dot}"></span><span class="name">${esc(b)}</span></div>
             <div>${s.n}</div><div>${s.win}</div><div>${s.pf}</div><div class="${cls(s.net)}">${money(s.net, d)}</div></button>`;
         }).join('')}
       </div>
       ${sellGold.n ? `<div class="mx card pad" style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px">
         <div><div style="font-size:14px;font-weight:600">Sell ทอง (ทุกกลุ่ม)</div><div class="sub">${sellGold.n} ไม้ · ชนะ ${sellGold.win} · PF ${sellGold.pf}</div></div>
         <div class="mono ${cls(sellGold.net)}" style="font-weight:600">${money(sellGold.net, d)}</div></div>` : ''}
+      <div class="section-title"><span>ปฏิทิน</span><span style="font-weight:400">ผลสุทธิรายวัน (วันที่ปิดไม้)</span></div>
+      <div class="card mx">${calendar()}</div>
       <div class="section-title"><span>ไม้ล่าสุด</span><span style="font-weight:400">R คิดจาก SL แรก</span></div>
       <div class="card mx list">${recent.map(itemRow).join('')}</div>
       <div style="height:16px"></div>`;
+  }
+
+  // ---------- ปฏิทิน ----------
+  function compact(v, d) {
+    const usd = state.unit === 'usd';
+    const x = usd ? v / (Number(d) || 1) : v;
+    const s = x > 0 ? '+' : (x < 0 ? '−' : '');
+    const a = Math.abs(x);
+    if (usd) return s + (a >= 100 ? Math.round(a) : a.toFixed(1));
+    return s + (a >= 1000 ? (a / 1000).toFixed(1) + 'k' : Math.round(a));
+  }
+  function calendar() {
+    const [y, m] = state.calMonth.split('-').map(Number);
+    const byDay = {};
+    let d = 100;
+    for (const t of state.trades) {
+      if (t.status !== 'closed' || !t.close_time) continue;
+      const k = fDay(t.close_time);
+      if (!k.startsWith(state.calMonth)) continue;
+      byDay[k] = byDay[k] || { net: 0, n: 0 };
+      byDay[k].net += Number(t.net_profit) || 0; byDay[k].n++; d = t.divisor;
+    }
+    const first = new Date(Date.UTC(y, m - 1, 1));
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const lead = (first.getUTCDay() + 6) % 7; // เริ่มวันจันทร์
+    const today = fDay(new Date().toISOString());
+    let cells = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'].map((h) => `<div class="h">${h}</div>`).join('');
+    for (let i = 0; i < lead; i++) cells += '<div></div>';
+    let tot = 0, nd = 0, wd = 0;
+    for (let dd = 1; dd <= days; dd++) {
+      const k = state.calMonth + '-' + String(dd).padStart(2, '0');
+      const v = byDay[k];
+      const tcls = k === today ? ' today' : '';
+      if (v) {
+        tot += v.net; nd++; if (v.net > 0) wd++;
+        cells += `<button class="c ${v.net > 0 ? 'p' : (v.net < 0 ? 'n' : '')}${tcls}" data-day="${k}" type="button" aria-label="${k} ${v.n} ไม้ ${compact(v.net, d)}">
+          <span class="dn">${dd}</span><span class="dv ${cls(v.net)}">${compact(v.net, d)}</span></button>`;
+      } else cells += `<div class="c${tcls}"><span class="dn">${dd}</span><span></span></div>`;
+    }
+    const label = new Intl.DateTimeFormat('th-TH', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(first);
+    return `<div class="calnav">
+        <button data-cal="-1" type="button" aria-label="เดือนก่อน"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div style="text-align:center"><div style="font-size:14px;font-weight:600">${label}</div>
+          <div class="sub">${nd ? `${nd} วันที่เทรด · บวก ${wd} วัน · <span class="${cls(tot)}">${money(tot, d)}</span>` : 'ไม่มีไม้ที่ปิดในเดือนนี้'}</div></div>
+        <button data-cal="1" type="button" aria-label="เดือนถัดไป"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div><div class="cal">${cells}</div>`;
+  }
+  function shiftMonth(n) {
+    let [y, m] = state.calMonth.split('-').map(Number);
+    m += n; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; }
+    state.calMonth = y + '-' + String(m).padStart(2, '0');
+  }
+
+  // ---------- พฤติกรรม ----------
+  function BEH() {
+    const s = state.settings || {};
+    return [
+      { k: 'stacked', name: 'ไม้ซ้อน', test: (t) => t.stacked,
+        detail: 'ออเดอร์ symbol และฝั่งเดียวกัน เปิดห่างจากออเดอร์ก่อนหน้าไม่เกินเวลาที่ตั้งไว้ และราคาห่างจากออเดอร์แรกไม่เกินระยะที่ตั้งไว้ นับเป็นไอเดียเดียว ตัวเลขนี้คือผลของออเดอร์ที่ 2 เป็นต้นไป (ส่วนที่ "ซ้อน" เพิ่ม) ปรับเกณฑ์ได้ในแท็บอื่นๆ' },
+      { k: 'revenge', name: 'เปิดแก้มือ (≤' + (s.revenge_window_min || 30) + ' นาที)', test: (t) => t.revenge,
+        detail: 'ไม้ที่เปิดภายใน ' + (s.revenge_window_min || 30) + ' นาทีหลังปิดไม้ขาดทุน (ทุก symbol)' },
+      { k: 'bigwin', name: 'ไม้หลังวันกำไรเกิน ' + (s.big_win_day_pct || 5) + '%', test: (t) => t.after_big_win,
+        detail: 'ไม้ที่เปิดในวันเทรดถัดจากวันที่กำไรสุทธิเกิน ' + (s.big_win_day_pct || 5) + '% ของ balance ต้นวัน' },
+      { k: 'sellgold', name: 'Sell ทอง', test: (t) => t.market === 'GOLD' && t.side === 'sell',
+        detail: 'แยกให้เห็นเสมอ เพราะเคยเป็นรูรั่วหลักของบัญชี' },
+      { k: 'nosl', name: 'ไม่มี SL (ไม่นับ Aegis)', test: (t) => t.no_sl_bad,
+        detail: 'ไม้ที่ไม่มี SL เลยตลอดทั้งไม้ ยกเว้นระบบที่กฎไม่ใช้ SL (Aegis) ไม้กลุ่มนี้ R จะเป็น "—"' },
+      { k: 'widen', name: 'เลื่อน SL หนี', test: (t) => t.sl_widened,
+        detail: 'เลื่อน SL ออกห่างราคา (ยอมขาดทุนมากขึ้น) การบีบ SL เข้าหรือย้ายไปจุดคุ้มทุนไม่นับ' },
+      { k: 'oversize', name: 'ไม้ใหญ่เกินระบบ', test: (t) => t.oversize,
+        detail: 'ความเสี่ยงจาก SL แรกเกิน % ของระบบนั้น × ' + (s.risk_tolerance || 1.2) + ' (ไม้ Manual ใช้ ' + (s.default_risk_pct || 0.3) + '%) หรือล็อตเกินล็อตสูงสุดที่ตั้งไว้ (Aegis)' }
+    ];
+  }
+  function viewBehavior() {
+    const closed = state.trades.filter((t) => t.status === 'closed');
+    if (!closed.length) return '<div class="empty">ยังไม่มีไม้ที่ปิดแล้ว</div>';
+    const d = closed[0].divisor;
+    const defs = BEH();
+    const risky = closed.filter((t) => defs.some((b) => b.k !== 'sellgold' && b.test(t)));
+    const clean = closed.filter((t) => !risky.includes(t));
+    const rS = stats(risky), cS = stats(clean);
+    const stackedIdeas = new Set(closed.filter((t) => t.idea_size > 1).map((t) => t.idea_id)).size;
+    const stackedOrders = closed.filter((t) => t.idea_size > 1).length;
+
+    const rows = defs.map((b) => {
+      const inG = closed.filter(b.test), outG = closed.filter((t) => !b.test(t));
+      const s = stats(inG), o = stats(outG);
+      const sub = b.k === 'stacked'
+        ? (stackedIdeas ? `${stackedOrders} ออเดอร์ = ${stackedIdeas} ไอเดีย · ซ้อนเพิ่ม ${s.n} ออเดอร์` : 'ไม่พบไม้ซ้อน')
+        : (s.n ? `${s.n} ไม้ · ชนะ ${s.win} (ไม้อื่น ${o.win})` : 'ไม่พบ');
+      const open = state.openBeh === b.k;
+      return `<div class="beh">
+        <button data-beh="${b.k}" aria-expanded="${open}" type="button">
+          <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${esc(b.name)}</div><div class="sub">${esc(sub)}</div></div>
+          <div class="mono ${s.n ? cls(s.net) : 'muted'}" style="font-weight:600;font-size:14px">${s.n ? money(s.net, d) : '—'}</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93A1AE" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="transform:${open ? 'rotate(180deg)' : 'none'}"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        ${open ? `<div class="det">${esc(b.detail)}${s.n ? `<br><button class="link" data-filter="b:${b.k}" type="button">ดูไม้กลุ่มนี้ ${s.n} ไม้ →</button>` : ''}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="grid2 mx" style="margin-top:6px">
+        <div class="card pad" style="background:#2A1A18;border-color:#5A2E28"><div class="sub" style="color:#E8A79D">ไม้ที่มีพฤติกรรมเสี่ยง</div>
+          <div class="mono ${cls(rS.net)}" style="font-size:20px;font-weight:600">${money(rS.net, d)}</div><div class="sub" style="color:#E8A79D">${rS.n} ไม้ · ชนะ ${rS.win} · PF ${rS.pf}</div></div>
+        <div class="card pad"><div class="sub">ไม้ที่ไม่มีพฤติกรรมเสี่ยง</div>
+          <div class="mono ${cls(cS.net)}" style="font-size:20px;font-weight:600">${money(cS.net, d)}</div><div class="sub">${cS.n} ไม้ · ชนะ ${cS.win} · PF ${cS.pf}</div></div>
+      </div>
+      <div class="sub mx" style="margin-top:8px">ไม้หนึ่งอาจมีหลายพฤติกรรม จึงนับซ้ำได้ในแต่ละแถว · Sell ทองไม่นับเป็นพฤติกรรมเสี่ยงในกล่องบน</div>
+      <div class="card mx" style="margin-top:12px">${rows}</div>
+      ${complianceCard(d)}
+      <div class="section-title"><span>ผลจริง vs backtest (Focus v2)</span></div>
+      <div class="mx" style="display:flex;flex-direction:column;gap:10px">${expectationCards(d)}${reviewCard(d)}</div>
+      <div style="height:16px"></div>`;
+  }
+  function complianceCard() {
+    const sys = state.trades.filter((t) => t.is_system && t.status === 'closed');
+    const ok = sys.filter((t) => t.rule_ok === true).length;
+    const target = (state.settings && state.settings.compliance_target) || 100;
+    const limit = Number((state.settings && state.settings.rule_break_limit_pct) || 10);
+    const brk = sys.length ? Math.round((sys.length - ok) / sys.length * 100) : null;
+    return `<div class="section-title"><span>ไม้ที่ทำตามระบบครบ</span></div>
+      <div class="card mx pad" style="display:flex;flex-direction:column;gap:10px">
+        <div class="row" style="justify-content:space-between"><span style="font-size:14px;font-weight:600">นับแล้ว</span><span class="mono" style="font-weight:600">${ok} / ${target}</span></div>
+        <div class="bar"><i style="width:${Math.min(100, ok / target * 100)}%;background:var(--sys)"></i></div>
+        <div class="sub ${brk != null && brk > limit ? 'neg' : ''}">${sys.length ? `ไม้ระบบที่ปิดแล้ว ${sys.length} ไม้ · หลุดกฎ ${brk}% (เกณฑ์ไม่เกิน ${limit}%)` : 'ยังไม่มีไม้ที่แท็กเป็นระบบ ตัวนับจะเริ่มเมื่อเทรดตาม Focus v2'}</div>
+        <div class="sub" style="line-height:1.6">ครบ = มี SL ตามกฎ, ไม่เลื่อน SL หนี, ไม่ใหญ่เกิน, ไม่ซ้อน, ไม่ใช่ไม้แก้มือ</div>
+      </div>`;
+  }
+  function expectationCards(d) {
+    const out = [];
+    for (const e of state.expectations) {
+      const st = state.strategies.find((s) => s.id === e.strategy_id);
+      if (!st) continue;
+      const rows = state.trades.filter((t) => t.strategy_id === st.id && t.status === 'closed')
+        .sort((a, b) => new Date(a.close_time) - new Date(b.close_time));
+      const s = stats(rows);
+      let cur = 0, mx = 0, run = 0;
+      for (const t of rows) { if (Number(t.net_profit) < 0) { run++; mx = Math.max(mx, run); } else run = 0; }
+      cur = run;
+      const winsR = rows.filter((t) => Number(t.net_profit) > 0 && t.r_multiple != null).map((t) => Number(t.r_multiple));
+      const avgWinR = winsR.length ? winsR.reduce((a, b) => a + b, 0) / winsR.length : null;
+      const minS = e.min_sample || 30;
+      let status = '', scls = '';
+      if (!rows.length) { status = 'ยังไม่มีไม้'; scls = 'muted'; }
+      else if (e.max_loss_streak && cur > e.max_loss_streak) { status = 'แพ้ติดเกินเกณฑ์ ทบทวนระบบ'; scls = 'neg'; }
+      else if (rows.length < minS) { status = `ข้อมูลยังน้อย (${rows.length}/${minS})`; scls = 'warn'; }
+      else { status = 'อยู่ในกรอบปกติ'; scls = 'good'; }
+      const streakBar = e.max_loss_streak ? `<div style="display:flex;flex-direction:column;gap:6px">
+          <div class="kv"><span>แพ้ติดตอนนี้</span><b>${cur} / ${e.max_loss_streak} ไม้</b></div>
+          <div class="bar"><i style="width:${Math.min(100, cur / e.max_loss_streak * 100)}%;background:${cur > e.max_loss_streak ? 'var(--neg)' : 'var(--sys)'}"></i></div>
+          <div class="sub">แพ้ติด ${e.normal_loss_streak || 10}+ ไม้เป็นเรื่องปกติของระบบ · สูงสุดที่เคยเจอในบัญชีจริง ${mx} ไม้</div></div>` : '';
+      out.push(`<div class="card pad" style="display:flex;flex-direction:column;gap:12px">
+        <div class="row" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">${esc(st.name)}</span><span class="${scls}" style="font-size:12px;font-weight:600">${status}</span></div>
+        <div class="grid2" style="gap:8px">
+          <div><div class="sub">ชนะ (จริง / คาด)</div><div class="mono" style="font-weight:600">${s.win} / ~${Math.round((e.win_rate || 0) * 100)}%</div></div>
+          ${e.avg_win_r_min ? `<div><div class="sub">ชนะเฉลี่ย (จริง / คาด)</div><div class="mono" style="font-weight:600">${avgWinR == null ? '—' : avgWinR.toFixed(1) + 'R'} / ${e.avg_win_r_min}–${e.avg_win_r_max}R</div></div>`
+            : `<div><div class="sub">ไม้ / สุทธิ</div><div class="mono" style="font-weight:600">${s.n} · <span class="${cls(s.net)}">${money(s.net, d)}</span></div></div>`}
+        </div>
+        ${streakBar}
+      </div>`);
+    }
+    return out.join('') || '<div class="empty">ยังไม่มีค่าคาดหวังของระบบ</div>';
+  }
+  function reviewCard(d) {
+    const se = state.settings || {};
+    const months = se.review_window_months || 6, lim = Number(se.review_dd_pct || 4.5);
+    const since = new Date(); since.setMonth(since.getMonth() - months);
+    const rows = state.trades.filter((t) => t.is_system && t.status === 'closed' && new Date(t.close_time) >= since)
+      .sort((a, b) => new Date(a.close_time) - new Date(b.close_time));
+    if (!rows.length) return `<div class="card pad"><div style="font-size:15px;font-weight:600">เกณฑ์ทบทวนพอร์ต</div><div class="sub" style="margin-top:4px">ยังไม่มีไม้ระบบใน ${months} เดือนล่าสุด</div></div>`;
+    const startBal = Number(rows[0].balance_at_open) || 0;
+    let cum = 0, peak = 0, dd = 0;
+    for (const t of rows) { cum += Number(t.net_profit) || 0; peak = Math.max(peak, cum); dd = Math.min(dd, cum - peak); }
+    const retPct = startBal ? cum / startBal * 100 : null, ddPct = startBal ? dd / startBal * 100 : null;
+    const worst = Math.min(retPct || 0, ddPct || 0);
+    return `<div class="card pad" style="display:flex;flex-direction:column;gap:8px">
+      <div class="row" style="justify-content:space-between"><span style="font-size:15px;font-weight:600">เกณฑ์ทบทวนพอร์ต</span>
+        <span class="${-worst > lim ? 'neg' : 'good'}" style="font-size:12px;font-weight:600">${-worst > lim ? 'เกินเกณฑ์ ทบทวนระบบ' : 'ยังไม่ถึงเกณฑ์'}</span></div>
+      <div class="kv"><span>ผลรวมระบบ ${months} เดือน</span><b class="${cls(retPct)}">${retPct == null ? '—' : retPct.toFixed(2) + '%'}</b></div>
+      <div class="kv"><span>ลบลึกสุดจากจุดสูงสุด</span><b>${ddPct == null ? '—' : ddPct.toFixed(2) + '%'} / −${lim}%</b></div>
+      <div class="bar"><i style="width:${Math.min(100, -worst / lim * 100)}%;background:var(--man)"></i></div>
+    </div>`;
   }
   function sideCard(title, kind, s, d) {
     return `<div class="card pad" style="display:flex;flex-direction:column;gap:10px">
@@ -368,14 +589,20 @@ nav.bottom button.on{color:var(--text);font-weight:600}
   // ---------- หน้า: ไม้ทั้งหมด ----------
   function viewTrades() {
     const names = ['ทั้งหมด'].concat(BUCKET_ORDER.filter((b) => state.trades.some((t) => t.bucket === b)), state.trades.some((t) => !t.bucket) ? ['ยังไม่แท็ก'] : [], ['Sell ทอง']);
-    if (!names.includes(state.filter)) state.filter = 'ทั้งหมด';
-    const rows = state.trades.filter((t) => state.filter === 'ทั้งหมด' ? true
+    const f = state.filter;
+    const beh = f.startsWith('b:') ? BEH().find((b) => b.k === f.slice(2)) : null;
+    const day = f.startsWith('d:') ? f.slice(2) : null;
+    if (!names.includes(f) && !beh && !day) state.filter = 'ทั้งหมด';
+    const extra = beh ? beh.name : day ? 'วันที่ ' + day : null;
+    const rows = state.trades.filter((t) => beh ? (t.status === 'closed' && beh.test(t))
+      : day ? (t.close_time && fDay(t.close_time) === day)
+      : state.filter === 'ทั้งหมด' ? true
       : state.filter === 'ยังไม่แท็ก' ? !t.bucket
       : state.filter === 'Sell ทอง' ? (t.market === 'GOLD' && t.side === 'sell')
       : t.bucket === state.filter);
     const s = stats(rows);
     return `
-      <div class="chips" style="margin-top:6px">${names.map((n) => `<button class="chip ${n === state.filter ? 'on' : ''}" data-filter="${esc(n)}" type="button">${esc(n)}</button>`).join('')}</div>
+      <div class="chips" style="margin-top:6px">${extra ? `<button class="chip on" data-filter="ทั้งหมด" type="button" aria-label="ล้างตัวกรอง">${esc(extra)} ✕</button>` : ''}${names.map((n) => `<button class="chip ${!extra && n === state.filter ? 'on' : ''}" data-filter="${esc(n)}" type="button">${esc(n)}</button>`).join('')}</div>
       <div class="mx card pad" style="margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;text-align:center">
         <div><div class="sub">ไม้</div><div class="mono" style="font-weight:600">${s.n}</div></div>
         <div><div class="sub">ชนะ</div><div class="mono" style="font-weight:600">${s.win}</div></div>
@@ -396,11 +623,58 @@ nav.bottom button.on{color:var(--text);font-weight:600}
       <div class="bk" style="padding:12px 14px"><span>EA ซิงก์ล่าสุด</span><span>${a && a.last_sync_at ? fDate(a.last_sync_at) : '—'}</span></div>
       <div class="bk" style="padding:12px 14px"><span>ไม้ทั้งหมด</span><span>${state.trades.length}</span></div>
     </div>
+    ${settingsForm()}
     <div class="mx" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
       <button class="btn" id="reload" type="button" style="background:var(--surface);color:var(--text);border:1px solid var(--line)">โหลดข้อมูลใหม่</button>
       <button class="btn" id="logout" type="button" style="background:transparent;color:var(--neg);border:1px solid var(--line)">ออกจากระบบ</button>
     </div>
     <div class="empty" style="font-size:12px">ถ้า "EA ซิงก์ล่าสุด" เก่าเกิน 10 นาทีตอนตลาดเปิด แปลว่าโน้ตบุ๊กหรือ MT5 ปิดอยู่<br>ไม้ที่เกิดระหว่างนั้นจะเข้ามาเองเมื่อเปิดใหม่</div>`;
+  }
+
+  function settingsForm() {
+    const s = state.settings;
+    if (!s) return '';
+    const aeg = state.strategies.find((x) => x.code === 'AEGIS');
+    const inp = (id, v, step, label, unit) => `<label for="${id}"><span>${label}</span><span class="row" style="gap:6px"><input id="${id}" type="number" inputmode="decimal" step="${step}" value="${v == null ? '' : esc(v)}"><span class="sub" style="width:34px">${unit}</span></span></label>`;
+    return `<div class="section-title"><span>เกณฑ์พฤติกรรม</span></div>
+      <div class="card mx form" style="padding:4px 14px">
+        ${inp('s_rev', s.revenge_window_min, 1, 'เปิดแก้มือ ภายใน', 'นาที')}
+        ${inp('s_big', s.big_win_day_pct, 0.5, 'วันกำไรใหญ่ เกิน', '%')}
+        ${inp('s_risk', s.default_risk_pct, 0.05, 'ความเสี่ยงที่แนะนำ (Manual)', '%')}
+        ${inp('s_tol', s.risk_tolerance, 0.05, 'ยอมเกินแผนได้', 'เท่า')}
+        ${aeg ? inp('s_aeg', aeg.max_lot, 0.01, 'Aegis ล็อตสูงสุด (ว่าง = ไม่จำกัด)', 'lot') : ''}
+      </div>
+      <div class="section-title"><span>เกณฑ์ไม้ซ้อน</span><span style="font-weight:400">นาที / ระยะราคา</span></div>
+      <div class="card mx form" style="padding:4px 14px">
+        ${state.symbols.map((y, i) => `<label><span>${esc(y.symbol)}</span><span class="row" style="gap:6px">
+          <input id="y_w${i}" type="number" inputmode="numeric" step="5" value="${esc(y.stack_window_min)}" aria-label="${esc(y.symbol)} นาที" style="width:70px">
+          <input id="y_d${i}" type="number" inputmode="decimal" step="0.5" value="${esc(y.stack_price_dist)}" aria-label="${esc(y.symbol)} ระยะราคา" style="width:84px"></span></label>`).join('')}
+      </div>
+      <div class="mx" style="margin-top:10px"><button class="btn" id="saveSettings" type="button" style="width:100%">บันทึกเกณฑ์</button></div>`;
+  }
+  async function saveSettings(btn) {
+    const v = (id) => { const el = $(id); if (!el) return undefined; const x = el.value.trim(); return x === '' ? null : Number(x); };
+    const s = state.settings;
+    const upd = { revenge_window_min: v('s_rev'), big_win_day_pct: v('s_big'), default_risk_pct: v('s_risk'), risk_tolerance: v('s_tol') };
+    for (const k of Object.keys(upd)) if (upd[k] == null || isNaN(upd[k]) || upd[k] <= 0) { toast('กรอกค่าให้เป็นตัวเลขมากกว่า 0'); return; }
+    btn.disabled = true; btn.textContent = 'กำลังบันทึก…';
+    const jobs = [sb.from('settings').update(upd).eq('user_id', s.user_id)];
+    const aeg = state.strategies.find((x) => x.code === 'AEGIS');
+    if (aeg && $('s_aeg')) jobs.push(sb.from('strategies').update({ max_lot: v('s_aeg') }).eq('id', aeg.id));
+    let stackChanged = false;
+    state.symbols.forEach((y, i) => {
+      const w = v('y_w' + i), d = v('y_d' + i);
+      if (w && d && (w !== Number(y.stack_window_min) || d !== Number(y.stack_price_dist))) {
+        stackChanged = true;
+        jobs.push(sb.from('symbols').update({ stack_window_min: Math.round(w), stack_price_dist: d }).eq('user_id', y.user_id).eq('symbol', y.symbol));
+      }
+    });
+    const res = await Promise.all(jobs);
+    const bad = res.find((r) => r.error);
+    if (!bad && stackChanged) { const r = await sb.rpc('reassign_my_ideas'); if (r.error) { toast('จัดไอเดียใหม่ไม่สำเร็จ: ' + r.error.message); } }
+    btn.disabled = false; btn.textContent = 'บันทึกเกณฑ์';
+    if (bad) { toast('บันทึกไม่สำเร็จ: ' + bad.error.message); return; }
+    await loadData(); render(); toast('บันทึกแล้ว ตัวเลขพฤติกรรมคำนวณใหม่');
   }
 
   // ---------- รายละเอียดไม้ ----------
@@ -431,10 +705,21 @@ nav.bottom button.on{color:var(--text);font-weight:600}
         ${t.entry_comment ? `<div class="bk"><span>comment</span><span>${esc(t.entry_comment)}</span></div>` : ''}
       </div>
       ${flags.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${flags.map((f) => `<span class="chip" style="color:#F5B0A6;display:inline-flex;align-items:center">${esc(f)}</span>`).join('')}</div>` : ''}
+      ${behLines(t)}
       <div class="section-title" style="margin-left:4px;margin-right:4px"><span>${t.bucket ? 'เปลี่ยนกลุ่ม' : 'ไม้นี้มาจาก…'}</span></div>
       <div style="display:flex;flex-direction:column;gap:8px">${optButtons(t)}</div>
     </div>`;
     $('sheet').classList.remove('hidden');
+  }
+  function behLines(t) {
+    const L = [];
+    if (t.idea_size > 1) L.push(['warn', `ไม้ที่ ${t.idea_rank} จาก ${t.idea_size} ออเดอร์ในไอเดียเดียวกัน${t.idea_rank > 1 ? ' (ซ้อน)' : ''}`]);
+    if (t.revenge) L.push(['neg', `เปิด ${t.revenge_min} นาทีหลังปิดไม้ขาดทุน ${money(t.revenge_after_loss, t.divisor)}`]);
+    if (t.after_big_win) L.push(['warn', 'เปิดวันถัดจากวันกำไรใหญ่ (' + esc(t.prev_trade_day) + ')']);
+    if (t.oversize) L.push(['neg', t.risk_pct != null && Number(t.risk_pct) > Number(t.risk_limit) ? `เสี่ยง ${t.risk_pct}% เกินเกณฑ์ ${t.risk_limit}%` : 'ล็อตเกินล็อตสูงสุดของระบบ']);
+    if (t.is_system && t.status === 'closed') L.push(t.rule_ok ? ['good', 'ทำตามระบบครบ ✓'] : ['neg', 'หลุดกฎระบบ']);
+    if (!L.length) return '';
+    return `<div class="card" style="margin-top:10px;padding:4px 14px">${L.map(([c, s]) => `<div class="bk"><span class="${c}" style="color:inherit"><span class="${c}">${s}</span></span><span></span></div>`).join('')}</div>`;
   }
   function closeSheet() { $('sheet').classList.add('hidden'); $('sheet').innerHTML = ''; }
 
@@ -456,7 +741,7 @@ nav.bottom button.on{color:var(--text);font-weight:600}
   }
 
   // ---------- วาดหน้า ----------
-  const TITLES = { overview: 'ภาพรวม', tag: 'รอแท็ก', trades: 'ไม้ทั้งหมด', more: 'อื่นๆ' };
+  const TITLES = { overview: 'ภาพรวม', tag: 'รอแท็ก', behavior: 'พฤติกรรม', trades: 'ไม้ทั้งหมด', more: 'อื่นๆ' };
   function render() {
     $('pageTitle').textContent = TITLES[state.tab];
     const n = untagged().length;
@@ -464,7 +749,8 @@ nav.bottom button.on{color:var(--text);font-weight:600}
     document.querySelectorAll('nav.bottom button').forEach((b) => b.classList.toggle('on', b.dataset.tab === state.tab));
     $('uUsc').classList.toggle('on', state.unit === 'usc');
     $('uUsd').classList.toggle('on', state.unit === 'usd');
-    const v = state.tab === 'overview' ? viewOverview() : state.tab === 'tag' ? viewTag() : state.tab === 'trades' ? viewTrades() : viewMore();
+    const v = state.tab === 'overview' ? viewOverview() : state.tab === 'tag' ? viewTag()
+      : state.tab === 'behavior' ? viewBehavior() : state.tab === 'trades' ? viewTrades() : viewMore();
     $('view').innerHTML = v;
   }
   function go(tab) { state.tab = tab; render(); window.scrollTo(0, 0); }
@@ -482,6 +768,10 @@ nav.bottom button.on{color:var(--text);font-weight:600}
     if (el.id === 'uUsc' || el.id === 'uUsd') { state.unit = el.id === 'uUsd' ? 'usd' : 'usc'; save('unit', state.unit); return render(); }
     if (el.id === 'reload') { $('view').innerHTML = '<div class="loading">กำลังโหลด…</div>'; if (await loadData()) { render(); toast('โหลดข้อมูลใหม่แล้ว'); } return; }
     if (el.id === 'logout') { await sb.auth.signOut(); location.reload(); return; }
+    if (el.dataset.cal) { shiftMonth(Number(el.dataset.cal)); return render(); }
+    if (el.dataset.day) { state.filter = 'd:' + el.dataset.day; return go('trades'); }
+    if (el.dataset.beh) { state.openBeh = state.openBeh === el.dataset.beh ? null : el.dataset.beh; return render(); }
+    if (el.id === 'saveSettings') return saveSettings(el);
     if (el.dataset.filter) { state.filter = el.dataset.filter; return go('trades'); }
     if (el.dataset.id) return openSheet(el.dataset.id);
   });
