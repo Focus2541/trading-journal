@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0F1419">
 <title>Trading Journal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Journal">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -112,6 +118,22 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 .form label:last-child{border-bottom:0}
 .form input{width:96px;min-height:40px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:500 15px var(--mono);text-align:right}
 .good{color:#8FE0B7} .warn{color:var(--warntext)}
+.splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--bg);z-index:50;transition:opacity .25s}
+.splash.out{opacity:0;pointer-events:none}
+.cover{min-height:100vh;display:flex;justify-content:center;padding:28px 20px calc(28px + env(safe-area-inset-bottom))}
+.cover-in{width:100%;max-width:400px;display:flex;flex-direction:column;gap:18px;justify-content:center}
+.curves{width:100%;height:auto;display:block;opacity:.9}
+.cover-title{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.cover-tag{font-size:14px;color:var(--muted)}
+.feat{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.feat li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#B8C3CD;line-height:1.55}
+.feat li .dot{margin-top:6px}
+.feat b{color:var(--text);font-weight:600}
+.login-form{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.login-form label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.login-form input{min-height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:400 16px var(--sans)}
+.whatif .wi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:12px 14px;border-bottom:1px solid var(--line2);align-items:center}
+.whatif .wi:last-child{border-bottom:0}
 </style>
 </head>
 <body>
@@ -119,17 +141,36 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 <!-- ค่าเชื่อมต่ออยู่ในไฟล์ config.js (อัปเดต index.html ได้โดยไม่ต้องใส่ key ใหม่) -->
 <script src="config.js"></script>
 
-<div id="login" class="login hidden">
-  <div>
-    <div style="font-size:24px;font-weight:700">Trading Journal</div>
-    <div class="sub">ล็อกอินด้วยผู้ใช้ที่สร้างไว้ใน Supabase</div>
-  </div>
-  <form id="loginForm" style="display:flex;flex-direction:column;gap:14px">
+<div id="splash" class="splash" aria-hidden="true">
+  <svg width="84" height="84" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#161D25"/><rect x="120" y="408" width="272" height="10" rx="5" fill="#26313C"/><rect x="196" y="104" width="8" height="292" rx="4" fill="#6AA9F0"/><rect x="168" y="146" width="64" height="206" rx="14" fill="#6AA9F0"/><rect x="308" y="186" width="8" height="210" rx="4" fill="#F0A35A"/><rect x="280" y="226" width="64" height="134" rx="14" fill="#F0A35A"/></svg>
+  <div style="font-size:15px;font-weight:600;letter-spacing:.2px">Trading Journal</div>
+</div>
+
+<div id="login" class="cover hidden">
+  <div class="cover-in">
+    <svg class="curves" viewBox="0 0 360 120" role="img" aria-label="เส้นผลสะสม ระบบขึ้น มือลง">
+      <line x1="0" y1="60" x2="360" y2="60" stroke="#26313C" stroke-width="1" stroke-dasharray="3 5"/>
+      <polyline points="0,60 40,58 80,52 120,56 160,44 200,40 240,30 280,34 320,20 360,14" fill="none" stroke="#6AA9F0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="0,60 40,62 80,57 120,66 160,64 200,78 240,74 280,92 320,98 360,108" fill="none" stroke="#F0A35A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="360" cy="14" r="4" fill="#6AA9F0"/><circle cx="360" cy="108" r="4" fill="#F0A35A"/>
+    </svg>
+    <div class="row" style="gap:14px;margin-top:6px">
+      <svg width="56" height="56" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#161D25"/><rect x="120" y="408" width="272" height="10" rx="5" fill="#26313C"/><rect x="196" y="104" width="8" height="292" rx="4" fill="#6AA9F0"/><rect x="168" y="146" width="64" height="206" rx="14" fill="#6AA9F0"/><rect x="308" y="186" width="8" height="210" rx="4" fill="#F0A35A"/><rect x="280" y="226" width="64" height="134" rx="14" fill="#F0A35A"/></svg>
+      <div><div class="cover-title">Trading Journal</div><div class="cover-tag">Journal ที่ฟ้องความจริง</div></div>
+    </div>
+    <ul class="feat">
+      <li><span class="dot sys"></span><span><b>ระบบ หรือ มือ</b> แยกให้เห็นว่ากำไรขาดทุนมาจากไหน</span></li>
+      <li><span class="dot man"></span><span><b>นิสัยเป็นตัวเลข</b> ไม้ซ้อน แก้มือ หลังวันกำไรใหญ่ ไม้ใหญ่เกิน</span></li>
+      <li><span class="dot none"></span><span><b>ซิงก์จาก MT5 เอง</b> ไม้จากมือถือก็เข้ามาครบ</span></li>
+    </ul>
+  <form id="loginForm" class="login-form">
     <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
     <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
     <button class="btn" type="submit" id="loginBtn">เข้าสู่ระบบ</button>
     <div class="err" id="loginErr" role="alert"></div>
   </form>
+  <div class="sub" style="text-align:center;margin-top:4px">Focus v2 · Exness MT5</div>
+  </div>
 </div>
 
 <div id="app" class="app hidden">
@@ -435,15 +476,31 @@ nav.bottom button.on{color:var(--text);font-weight:600}
       </div>`;
     }).join('');
 
+    const total = stats(closed);
+    const PHRASE = { stacked: 'ไม่ซ้อนไม้', revenge: 'ไม่เปิดแก้มือ', bigwin: 'หยุดเทรดวันถัดจากวันกำไรใหญ่', sellgold: 'ไม่ Sell ทอง',
+      nosl: 'ไม่เปิดไม้ที่ไม่มี SL', widen: 'ไม่เลื่อน SL หนี', oversize: 'ไม่เปิดไม้ใหญ่เกินระบบ' };
+    const wi = defs.map((b) => ({ b, s: stats(closed.filter(b.test)) })).filter((x) => x.s.n)
+      .sort((a, b) => a.s.net - b.s.net);
+    const wiRows = wi.map(({ b, s }) => {
+      const after = total.net - s.net, delta = -s.net;
+      return `<div class="wi">
+        <div style="font-size:14px;font-weight:600">ถ้า${esc(PHRASE[b.k])}</div>
+        <div class="mono ${cls(after)}" style="font-weight:600;text-align:right">${money(after, d)}</div>
+        <div class="sub">ตัด ${s.n} ไม้ออก${b.k === 'nosl' && delta < 0 ? ' · บวกจากการลากไม้จนราคากลับ ไม่ใช่ข้อได้เปรียบ' : ''}</div>
+        <div class="mono ${cls(delta)}" style="font-size:12px;text-align:right">${delta >= 0 ? 'ดีขึ้น ' : 'แย่ลง '}${money(Math.abs(delta), d, { nosign: true })}</div>
+      </div>`;
+    }).join('');
+
     return `
-      <div class="grid2 mx" style="margin-top:6px">
-        <div class="card pad" style="background:#2A1A18;border-color:#5A2E28"><div class="sub" style="color:#E8A79D">ไม้ที่มีพฤติกรรมเสี่ยง</div>
-          <div class="mono ${cls(rS.net)}" style="font-size:20px;font-weight:600">${money(rS.net, d)}</div><div class="sub" style="color:#E8A79D">${rS.n} ไม้ · ชนะ ${rS.win} · PF ${rS.pf}</div></div>
-        <div class="card pad"><div class="sub">ไม้ที่ไม่มีพฤติกรรมเสี่ยง</div>
-          <div class="mono ${cls(cS.net)}" style="font-size:20px;font-weight:600">${money(cS.net, d)}</div><div class="sub">${cS.n} ไม้ · ชนะ ${cS.win} · PF ${cS.pf}</div></div>
+      <div class="card mx pad" style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+        <div><div class="sub">ผลจริง (ไม้ที่ปิดแล้ว ${total.n} ไม้)</div><div class="mono ${cls(total.net)}" style="font-size:22px;font-weight:600">${money(total.net, d)}</div></div>
+        <div style="text-align:right"><div class="sub">ไม่มีนิสัยเสี่ยงเลย</div><div class="mono ${cls(cS.net)}" style="font-weight:600">${cS.n ? money(cS.net, d) : '—'}</div><div class="sub">${cS.n} ไม้</div></div>
       </div>
-      <div class="sub mx" style="margin-top:8px">ไม้หนึ่งอาจมีหลายพฤติกรรม จึงนับซ้ำได้ในแต่ละแถว · Sell ทองไม่นับเป็นพฤติกรรมเสี่ยงในกล่องบน</div>
-      <div class="card mx" style="margin-top:12px">${rows}</div>
+      <div class="section-title"><span>ถ้าไม่ทำพฤติกรรมนี้…</span><span style="font-weight:400">เรียงจากเสียมากสุด</span></div>
+      <div class="card mx whatif">${wiRows || '<div class="empty">ไม่พบพฤติกรรมเสี่ยง</div>'}</div>
+      <div class="sub mx" style="margin-top:8px;line-height:1.6">แต่ละแถวคิดแยกกัน ไม้หนึ่งอาจอยู่หลายแถว จึงบวกรวมกันไม่ได้ · ข้อมูลน้อยกว่า ~30 ไม้ต่อแถวยังเป็นแค่สัญญาณ ไม่ใช่ข้อสรุป</div>
+      <div class="section-title"><span>รายละเอียดแต่ละพฤติกรรม</span></div>
+      <div class="card mx">${rows}</div>
       ${complianceCard(d)}
       <div class="section-title"><span>ผลจริง vs backtest (Focus v2)</span></div>
       <div class="mx" style="display:flex;flex-direction:column;gap:10px">${expectationCards(d)}${reviewCard(d)}</div>
@@ -791,6 +848,7 @@ nav.bottom button.on{color:var(--text);font-weight:600}
     start();
   });
 
+  function hideSplash() { const s = $('splash'); if (s) { s.classList.add('out'); setTimeout(() => s.remove(), 300); } }
   async function start() {
     $('login').classList.add('hidden');
     $('app').classList.remove('hidden');
@@ -800,8 +858,8 @@ nav.bottom button.on{color:var(--text);font-weight:600}
 
   (async () => {
     const { data } = await sb.auth.getSession();
-    if (data && data.session) start();
-    else $('login').classList.remove('hidden');
+    if (data && data.session) { await start(); hideSplash(); }
+    else { $('login').classList.remove('hidden'); hideSplash(); }
   })();
 })();
 </script>

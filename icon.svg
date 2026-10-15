@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Trading Journal">
+  <rect width="512" height="512" rx="112" fill="#0F1419"/>
+  <rect x="120" y="408" width="272" height="10" rx="5" fill="#26313C"/>
+  <rect x="196" y="104" width="8" height="292" rx="4" fill="#6AA9F0"/>
+  <rect x="168" y="146" width="64" height="206" rx="14" fill="#6AA9F0"/>
+  <rect x="308" y="186" width="8" height="210" rx="4" fill="#F0A35A"/>
+  <rect x="280" y="226" width="64" height="134" rx="14" fill="#F0A35A"/>
+</svg>
