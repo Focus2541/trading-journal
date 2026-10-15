@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f5f6f8">
+<meta name="theme-color" content="#f3eee4">
 <script>(function(){try{var t=localStorage.getItem("tj_theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <title>Trading Journal</title>
 <link rel="manifest" href="manifest.json">
@@ -19,15 +19,15 @@
 /* ---------- ธีม: สว่าง (ค่าเริ่มต้น) ---------- */
 :root{
   color-scheme: light;
-  --bg:#f5f6f8; --surface:#ffffff; --surface2:rgba(255,255,255,.92); --soft:#f1f3f6; --soft2:#e7eaf0;
-  --line:#e3e6ec; --line2:#eef0f4; --text:#1a202c; --text2:#4a5568; --muted:#677285;
-  --acc:#0e9f9a; --acc-soft:#e3f6f5;
-  --sys:#2f6fd0; --sys-soft:#e8f0fc; --man:#c76a05; --man-soft:#fff4e0;
-  --pos:#178a45; --pos-soft:#e6f6ec; --neg:#d23b3b; --neg-soft:#fdeceb;
-  --warnbg:#fff4e0; --warnline:#f6d9a8; --warntext:#a85a04;
-  --infobg:#e8f0fc; --infoline:#9dbcec; --infotext:#244f94;
-  --seg-bg:#e7eaf0; --seg-on:#ffffff; --logo-bg:#0F1419; --logo-rule:#26313C;
-  --shadow:0 1px 2px rgba(20,30,50,.04),0 4px 14px rgba(20,30,50,.05);
+  --bg:#f3eee4; --surface:#fbf8f1; --surface2:rgba(251,248,241,.92); --soft:#efe8db; --soft2:#e5ddcd;
+  --line:#e0d7c6; --line2:#ebe4d6; --text:#2b261f; --text2:#564d41; --muted:#716655;
+  --acc:#08756f; --acc-soft:#dcefe9;
+  --sys:#2c67c2; --sys-soft:#e3eaf3; --man:#b55f04; --man-soft:#f8ead2;
+  --pos:#167a3f; --pos-soft:#e2efdf; --neg:#b52f2f; --neg-soft:#f8e3dc;
+  --warnbg:#f8ead2; --warnline:#ebcf9f; --warntext:#93500a;
+  --infobg:#e3eaf3; --infoline:#a9bfdc; --infotext:#244c8a;
+  --seg-bg:#e5ddcd; --seg-on:#fbf8f1; --logo-bg:#0F1419; --logo-rule:#26313C;
+  --shadow:0 1px 2px rgba(60,45,20,.05),0 4px 14px rgba(60,45,20,.05);
   --shadow-lg:0 10px 30px rgba(20,30,50,.16); --scrim:rgba(20,25,35,.45);
   --mono:'IBM Plex Mono',ui-monospace,monospace; --sans:'IBM Plex Sans Thai',system-ui,sans-serif;
   --r:14px;
@@ -326,7 +326,7 @@ nav.bottom button.on{color:var(--acc)}
     const btn = $('themeBtn');
     if (btn) { btn.innerHTML = THEME_ICON[t]; btn.setAttribute('aria-label', 'ธีม: ' + THEME_NAME[t] + ' (แตะเพื่อเปลี่ยน)'); btn.title = 'ธีม: ' + THEME_NAME[t]; }
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f5f6f8');
+    if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f3eee4');
   }
   try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (themeNow() === 'auto') applyTheme('auto'); }); } catch (e) {}
   applyTheme(themeNow());
